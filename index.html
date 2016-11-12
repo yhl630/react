@@ -1,119 +1,148 @@
 <!DOCTYPE html>
-<html lang="zh-cn">
-
+<html lang="en">
 <head>
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title></title>
-    <link rel="stylesheet" type="text/css" href="./css/bootstrap.css">
-    <style type="text/css">
-    table th,
-    table td {
-        text-align: center;
-    }
-    </style>
-    <script>
-    var data = [
-					{stName:"小乐",gender:"女",age:18,height:165,weigth:45,_id:2},
-					{stName:"leo",gender:"男",age:35,height:180,weigth:80,_id:0},
-					{stName:"童童",gender:"女",age:22,height:171,weigth:60,_id:6},
-					{stName:"momo",gender:"男",age:26,height:175,weigth:70,_id:1},
-					{stName:"leo",gender:"女",age:18,height:170,weigth:50,_id:3},
-					{stName:"momo",gender:"女",age:38,height:166,weigth:50,_id:4},
-					{stName:"童童",gender:"男",age:30,height:175,weigth:65,_id:5}
-				]
-    </script>
+	<meta charset="UTF-8">
+	<title>React</title>
+            <link rel="stylesheet" type="text/css" href="css/bootstrap.css"/>
 </head>
-
+<script src="js/react.min.js"></script>
+<script src="js/react-dom.min.js"></script>
+<script src="js/browser.min.js"></script>
+<script src="js/pubsub.js"></script>
+<script src="js/data.js"></script>
+<script src="js/index.js"></script>
 <body>
-    <div class="container">
-        <h1>学员成信息表</h1>
-        <div class="bs-example">
-            <div class="form-group">
-                <label>按性别筛选</label>
-                <select class="form-control">
-                    <option value="all">all</option>
-                    <option value="1">男</option>
-                    <option value="0">女</option>
-                </select>
-            </div>
-            <div class="form-group">
-                <label>按名字筛选</label>
-                <input type="text" class="form-control" placeholder="请输入名字">
-            </div>
-        </div>
-        <div class="table-responsive">
-            <table class="table table-bordered table-hover">
-                <thead>
-                    <tr>
-                        <th>姓名</th>
-                        <th>性别</th>
-                        <th>年龄</th>
-                        <th>身高（cm）</th>
-                        <th>体重（kg）</th>
-                        <th>操作</th>
-                    </tr>
-                </thead>
-                <tbody id="tb">
-                    <tr>
-                        <td>小乐</td>
-                        <td>女</td>
-                        <td>18</td>
-                        <td>165</td>
-                        <td>45</td>
-                        <td><a href="javascript:;">删除</a> </td>
-                    </tr>
-                    <tr>
-                        <td>leo</td>
-                        <td>男</td>
-                        <td>35</td>
-                        <td>180</td>
-                        <td>80</td>
-                        <td><a href="javascript:;">删除</a> </td>
-                    </tr>
-                    <tr>
-                        <td>童童</td>
-                        <td>女</td>
-                        <td>22</td>
-                        <td>171</td>
-                        <td>60</td>
-                        <td><a href="javascript:;">删除</a> </td>
-                    </tr>
-                    <tr>
-                        <td>momo</td>
-                        <td>男</td>
-                        <td>26</td>
-                        <td>175</td>
-                        <td>70</td>
-                        <td><a href="javascript:;">删除</a> </td>
-                    </tr>
-                    <tr>
-                        <td>leo</td>
-                        <td>女</td>
-                        <td>18</td>
-                        <td>170</td>
-                        <td>50</td>
-                        <td><a href="javascript:;">删除</a> </td>
-                    </tr>
-                    <tr>
-                        <td>momo</td>
-                        <td>女</td>
-                        <td>38</td>
-                        <td>166</td>
-                        <td>50</td>
-                        <td><a href="javascript:;">删除</a> </td>
-                    </tr>
-                    <tr>
-                        <td>童童</td>
-                        <td>男</td>
-                        <td>30</td>
-                        <td>175</td>
-                        <td>65</td>
-                        <td><a href="javascript:;">删除</a> </td>
-                    </tr>
-                </tbody>
-            </table>
-        </div>
-    </div>
-</body>
+            <div class="container" id="studentInfo"></div>
+            <script type="text/babel">
+                var oStudentInfo=document.getElementById('studentInfo');
+                
+                //创建学生app这个类
+                var StudentApp=React.createClass({
+                    //初始化 配置信息
+                    getInitialState:function(){
+                        return {
+                            fatherData:data,
+                            sex:'all',
+                            deName:''
+                        }
+                    },
+                    filterFn:function(e){//过滤男女
+                        this.setState({sex:e.target.value})
+                    },
+                    changeName:function(e){//过滤名字
+                        this.setState({deName:e.target.value})
+                    },
+                    componentDidMount:function(){//页面渲染完成后
+                        PubSub.subscribe("delectItem",function(evName,_id){
+                            var newArr = this.state.fatherData.filter(function(item){
+                                return item._id !== _id
+                            });
+                            this.setState({fatherData:newArr});
+                        }.bind(this)); 
+                    },
+                    render:function(){
+                        return (
+                            <div>
+                                <h1>学员成绩信息表</h1>
+                                <div className="bs-example">
+                                   <div className="form-group">
+                                       <label>按性别筛选</label>
+                                       <select className="form-control" onChange={this.filterFn}>
+                                           <option>all</option>
+                                           <option>男</option>
+                                           <option>女</option>
+                                       </select>
+                                   </div>
+                                   <div className="form-group">
+                                       <label>按名字筛选</label>
+                                       <input type="text" className="form-control" placeholder="请输入名字" onKeyUp = {this.nameFilterHandle} onKeyUp={this.changeName} />
+                                   </div>
+                                   <StudentWrap  sonData={this.state.fatherData}  sexValue={this.state.sex}  cName={this.state.deName}/>
+                               </div>
+                            </div>
+                        )
+                    }
+                });
+                //创建学生数据父级类
+                var StudentWrap=React.createClass({
+            
+                    render:function(){
+                        //构建空数组 用来放结构
+                        var arr=[];
+                        var selectValue=this.props.sexValue;
+                        var cName=this.props.cName;
+                        //通过对象的属性获取数据
+                        this.props.sonData.forEach(function(item,index){
+                            
+                            //通过选择的性别过滤数据
+                            if(selectValue!=="all"){
+                                if(!cName){//判断是否输入 要搜索的人名
+                                         if( item.gender==selectValue){
+                                             arr.push(<StudentData everyData={item}/>);
+                                        }
+                                }else{
+                                         if( item.gender==selectValue ){
+                                             if(cName==item.stName){
+                                                arr.push(<StudentData everyData={item}/>);
+                                             }
+                                        }
+                                }
+                               
+                            }else{
+                                    if(!cName){
+                                        arr.push(<StudentData everyData={item}/>);
+                                    }else{
+                                        if(cName==item.stName){
+                                         arr.push(<StudentData everyData={item}/>);
+                                        }
+                                    }
+                            }
 
+                        })
+                        return(
+                            <div className="table-responsive">
+                               <table className="table table-bordered table-hover">
+                                   <thead>
+                                       <tr>
+                                           <th>姓名</th>
+                                           <th>性别</th>
+                                           <th>年龄</th>
+                                           <th>身高（cm）</th>
+                                           <th>体重（kg）</th>
+                                           <th>操作</th>
+                                       </tr>
+                                   </thead>
+                                   <tbody id="tb">
+                                          {arr}
+                                   </tbody>
+                               </table>
+                            </div> 
+                        )
+                    }
+                });
+
+                //创建学生数据的类
+                var StudentData=React.createClass({
+                    delectItem: function(){//绑定模块之间的通信
+                        PubSub.publish("delectItem",this.props.everyData._id);
+                    },
+                    render:function(){
+                        var item=this.props.everyData;//接受每一条数据 通过props
+                        return(
+                            <tr>
+                               <td>{item.stName}</td>
+                               <td>{item.gender}</td>
+                               <td>{item.age}</td>
+                               <td>{item.height}</td>
+                               <td>{item.weigth}</td>
+                               <td><a href="javascript:;" onClick = {this.delectItem} >删除</a> </td>
+                            </tr> 
+                        )
+                    }
+                })
+
+                //渲染学生app类的结构
+                ReactDOM.render(<StudentApp/>,oStudentInfo);
+            </script>
+</body>
 </html>
